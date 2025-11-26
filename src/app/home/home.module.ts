@@ -4,14 +4,13 @@ import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';  // 👈 IMPORTANTE
 
 import { HomePageRoutingModule } from './home-routing.module';
-import { HomePage } from './home.page';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
-    IonicModule,  // 👈 AGREGA ESTO
-    HomePageRoutingModule
+    IonicModule,
+    HomePageRoutingModule,
   ],
 })
 export class HomePageModule {}

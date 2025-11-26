@@ -19,8 +19,7 @@
 
 <ion-content [fullscreen]="true">
   <app-bar-chart  *ngIf="tipoDeChartSeleccionado === 'bar-chart'" [backgroundColorCategorias]="backgroundColorCat"
-  [borderColorCategorias]="borderColorCat"
-  [tipoChartSelected]="tipoDeChartSeleccionado"></app-bar-chart>
+  [borderColorCategorias]="borderColorCat"></app-bar-chart>
   <!--En el segmento "Line-Chart" mostraremos únicamente su correspondiente gráfica-->
   <app-line-chart *ngIf="tipoDeChartSeleccionado === 'line-chart'"></app-line-chart>
   <!--En el segmento "Pie-Chart" mostraremos únicamente su correspondiente gráfica-->
