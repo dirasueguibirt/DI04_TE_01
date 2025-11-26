@@ -28,20 +28,39 @@ export class BarChartComponent implements OnInit {
   constructor(private el: ElementRef, private renderer: Renderer2, private gestionServiceApi: GestionApiService) {}
  
   ngOnInit(): void {
-    console.log("Ejecuta bar-chart");
-    this.inicializarChart();
+  console.log("Ejecuta bar-chart");
 
-    // Solo suscribirse al servicio si no se reciben datos por input (caso tab7)
-    if (this.datosCategorias.length === 0 && this.nombresCategorias.length === 0) {
-      this.gestionServiceApi.datos$.subscribe((datos) => {
-        if (datos != undefined) {
-          this.nombresCategorias.push(datos.categoria);
-          this.datosCategorias.push(datos.totalResults);
+  // Solo suscribirse al servicio si no se reciben datos por input (caso tab7)
+  if (this.datosCategorias.length === 0 && this.nombresCategorias.length === 0) {
+    this.gestionServiceApi.datos$.subscribe((datos) => {
+      if (datos != undefined) {
+
+        // Guardamos los datos en los arrays
+        this.nombresCategorias.push(datos.categoria);
+        this.datosCategorias.push(datos.totalResults);
+
+        // Si el chart aún no existe, lo inicializamos
+        if (!this.chart) {
+          this.inicializarChart();
+        } else {
+          // Actualizamos el chart directamente con los nuevos datos
+          this.chart.data.labels = [...this.nombresCategorias];
+          this.chart.data.datasets[0].data = [...this.datosCategorias];
+
+          // También actualizamos colores si quieres
+          this.chart.data.datasets[0].backgroundColor = this.backgroundColorCategorias.slice(0, this.datosCategorias.length);
+          this.chart.data.datasets[0].borderColor = this.borderColorCategorias.slice(0, this.datosCategorias.length);
+
           this.chart.update();
         }
-      });
-    }
+      }
+    });
+  } else {
+    this.inicializarChart();
   }
+}
+
+
 
   private inicializarChart() {
 
@@ -52,7 +71,7 @@ export class BarChartComponent implements OnInit {
       data = {
         labels: this.nombresCategorias,
         datasets: [{
-          label: 'My First Dataset',
+          label: 'Noticias',
           data: this.datosCategorias,
           fill: false,
           backgroundColor: this.backgroundColorCategorias,
@@ -99,31 +118,39 @@ export class BarChartComponent implements OnInit {
     // Añadimos el canvas al div con id "chartContainer"
     const container = this.el.nativeElement.querySelector('#contenedor-barchart');
     this.renderer.appendChild(container, canvas);
-  
-    this.chart = new Chart(canvas, {
-      type: 'bar' as ChartType, // tipo de la gráfica 
-      data: data, // datos 
-      options: { // opciones de la gráfica
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        },
-        plugins: {
-          legend: {
-            labels: {
-              boxWidth: 0,
-              font: {
-                size: 16,
-                weight: 'bold'
-              }
-            },
-          }
-        },
-      }
-    });
+
+    const datasets = this.nombresCategorias.map((nombre, i) => ({
+  label: nombre,                  // cada categoría tiene su propio label
+  data: [this.datosCategorias[i]],// un solo valor
+  backgroundColor: this.backgroundColorCategorias[i],
+  borderColor: this.borderColorCategorias[i],
+  borderWidth: 1
+}));
+
+this.chart = new Chart(canvas, {
+  type: 'bar',
+  data: {
+    labels: [''],
+    datasets: datasets
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: true },    // mostrará todas las categorías
+      tooltip: {
+        callbacks: {
+          label: (ctx) => `${ctx.dataset.label}: ${ctx.dataset.data[0]}`
+        }
+      },
+      title: { display: false }
+    },
+    scales: {
+      y: { beginAtZero: true }
+    }
+  }
+});
+
+
   
     this.chart.canvas.width = 100;
     this.chart.canvas.height = 100;
